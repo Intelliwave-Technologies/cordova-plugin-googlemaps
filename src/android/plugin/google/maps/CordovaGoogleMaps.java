@@ -22,9 +22,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.MapsInitializer.Renderer;
+import com.google.android.gms.maps.OnMapsSdkInitializedCallback;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -44,8 +48,10 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
+import javax.swing.Renderer;
+
 @SuppressWarnings("deprecation")
-public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScrollChangedListener{
+public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScrollChangedListener, OnMapsSdkInitializedCallback{
   private final String TAG = "GoogleMapsPlugin";
   private Activity activity;
   public ViewGroup root;
@@ -68,6 +74,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     root = (ViewGroup) view.getParent();
 
     pluginManager = webView.getPluginManager();
+
+    CordovaGoogleMaps that = this;
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @SuppressLint("NewApi")
@@ -202,8 +210,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         //------------------------------
         if (!initialized) {
           try {
-            MapsInitializer.initialize(cordova.getActivity());
-            initialized = true;
+            MapsInitializer.initialize(cordova.getActivity(), Renderer.LATEST, that);
           } catch (Exception e) {
             e.printStackTrace();
           }
@@ -211,8 +218,19 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
       }
     });
+  }
 
-
+  @Override
+  public void onMapsSdkInitialized(@NonNull Renderer renderer) {
+    initialized = true;
+    switch (renderer) {
+      case LATEST:
+        Log.d(TAG, "The latest version of the renderer is used");
+        break;
+      case LEGACY:
+        Log.d(TAG, "The legacy version of the renderer is used");
+        break;
+    }
   }
 
   @Override
@@ -448,15 +466,13 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     //------------------------------------------
     JSONObject meta = args.getJSONObject(0);
     String mapId = meta.getString("__pgmId");
+    
     PluginMap pluginMap = new PluginMap();
-    pluginMap.privateInitialize(mapId, cordova, webView, null);
-    pluginMap.initialize(cordova, webView);
-    pluginMap.mapCtrl = CordovaGoogleMaps.this;
-    pluginMap.self = pluginMap;
-
     PluginEntry pluginEntry = new PluginEntry(mapId, pluginMap);
     pluginManager.addService(pluginEntry);
 
+    pluginMap.mapCtrl = CordovaGoogleMaps.this;
+    pluginMap.self = pluginMap;
     pluginMap.getMap(args, callbackContext);
   }
 
@@ -470,13 +486,12 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     String mapId = meta.getString("__pgmId");
     Log.d(TAG, "---> mapId = " + mapId);
     PluginStreetViewPanorama pluginStreetView = new PluginStreetViewPanorama();
-    pluginStreetView.privateInitialize(mapId, cordova, webView, null);
-    pluginStreetView.initialize(cordova, webView);
-    pluginStreetView.mapCtrl = CordovaGoogleMaps.this;
-    pluginStreetView.self = pluginStreetView;
-
+    
     PluginEntry pluginEntry = new PluginEntry(mapId, pluginStreetView);
     pluginManager.addService(pluginEntry);
+
+    pluginStreetView.mapCtrl = CordovaGoogleMaps.this;
+    pluginStreetView.self = pluginStreetView;
 
     pluginStreetView.getPanorama(args, callbackContext);
   }
