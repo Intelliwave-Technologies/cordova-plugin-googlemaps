@@ -48,8 +48,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-import javax.swing.Renderer;
-
 @SuppressWarnings("deprecation")
 public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScrollChangedListener, OnMapsSdkInitializedCallback{
   private final String TAG = "GoogleMapsPlugin";

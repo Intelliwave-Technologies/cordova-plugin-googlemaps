@@ -16,8 +16,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.v4.content.PermissionChecker;
+import androidx.annotation.NonNull;
+import androidx.core.content.PermissionChecker;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
@@ -612,7 +612,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       PluginEntry pluginEntry = new PluginEntry(pluginName, plugin);
       plugins.put(pluginName, pluginEntry);
       mapCtrl.pluginManager.addService(pluginEntry);
-    
+
       ((MyPluginInterface)plugin).setPluginMap(PluginMap.this);
       MyPlugin myPlugin = (MyPlugin) plugin;
       myPlugin.self = (MyPlugin)plugin;
@@ -662,7 +662,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       plugins.put(className, pluginEntry);
       pluginMap = PluginMap.this;
       pluginMap.mapCtrl.pluginManager.addService(pluginEntry);
-      
+
       ((MyPluginInterface)plugin).setPluginMap(PluginMap.this);
       pluginEntry.plugin.execute("create", args, callbackContext);
 
