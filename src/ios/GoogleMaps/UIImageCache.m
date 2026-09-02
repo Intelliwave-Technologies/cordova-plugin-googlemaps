@@ -6,6 +6,7 @@
 //
 //
 #import "UIImageCache.h"
+@import UIKit;
 
 static UIImageCache *sharedInstance;
 
